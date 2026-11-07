@@ -54,7 +54,8 @@ body {
 #WI-SP-button,
 #backgrounds-button,
 #advanced-formatting-button,
-#extensions-settings-button {
+#extensions-settings-button,
+#extensionsMenuButton {
     display: none !important;
 }
 
