@@ -38,6 +38,9 @@ browserLaunch:
   avoidLocalhost: false
 # Server port
 port: 8000
+# st-lite fork: 子路径部署前缀（如 /play）—— nginx 以带前缀路径反代并剥掉前缀时设置；
+# 留空即原版根路径行为。机制见 src/server-main.js 的 basePath 段与 public/scripts/base-path.js
+basePath: ''
 # Interval in seconds to write a heartbeat file. Set to 0 to disable.
 # This is used primarily for Docker healthchecks.
 heartbeatInterval: 0

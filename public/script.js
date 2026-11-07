@@ -705,7 +705,7 @@ async function firstLoadInit() {
     initLoaderOverlay.classList.add('splash-screen');
 
     const splashLogo = document.createElement('img');
-    splashLogo.src = '/img/logo.png';
+    splashLogo.src = (window.ST_BASE_PATH ?? '') + '/img/logo.png';
     splashLogo.alt = 'SillyTavern';
     splashLogo.className = 'splash-logo';
     splashLogo.ariaLabel = t`SillyTavern Logo`;
@@ -1982,7 +1982,7 @@ export function messageFormatting(mes, ch_name, isSystem, isUser, messageId, san
 export function createModelIcon(apiName, modelName = '') {
     const image = new Image();
     image.classList.add('icon-svg');
-    image.src = `/img/${apiName}.svg`;
+    image.src = (window.ST_BASE_PATH ?? '') + `/img/${apiName}.svg`;
     image.title = modelName ? `${apiName} - ${modelName}` : apiName;
     return image;
 }
@@ -7546,7 +7546,7 @@ async function read_avatar_load(input) {
  * @returns {string} The URL for the thumbnail
  */
 export function getThumbnailUrl(type, file, t = false) {
-    return `/thumbnail?type=${type}&file=${encodeURIComponent(file)}${t ? `&t=${Date.now()}` : ''}`;
+    return (window.ST_BASE_PATH ?? '') + `/thumbnail?type=${type}&file=${encodeURIComponent(file)}${t ? `&t=${Date.now()}` : ''}`;
 }
 
 export function buildAvatarList(block, entities, { templateId = 'inline_avatar_template', empty = true, interactable = false, highlightFavs = true } = {}) {

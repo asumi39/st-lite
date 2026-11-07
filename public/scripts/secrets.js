@@ -535,7 +535,7 @@ async function authorizeOpenRouter() {
     await saveSettings();
 
     // Redirect to OpenRouter authorization URL with the code challenge and callback URL
-    const redirectUrl = new URL('/callback/openrouter', window.location.origin);
+    const redirectUrl = new URL((window.ST_BASE_PATH ?? '') + '/callback/openrouter', window.location.origin);
     const openRouterUrl = `https://openrouter.ai/auth?callback_url=${encodeURIComponent(redirectUrl.toString())}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
     location.href = openRouterUrl;
 }

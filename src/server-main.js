@@ -163,6 +163,51 @@ app.use(cookieSession({
 
 app.use(setUserDataMiddleware);
 
+// ── st-lite fork · 子路径部署支持（config.yaml 的 basePath，如 '/play'）──────────
+// nginx 在反代层剥掉前缀（proxy_pass http://127.0.0.1:8000/），本服务内部始终按根路径
+// 运行；这里只补浏览器侧差价：302 Location 补前缀、入口 HTML 注入 ST_BASE_PATH 并改写
+// <base>（前端 scripts/base-path.js 据此包装 fetch/XHR）。basePath 留空 = 原版行为。
+const basePath = getConfigValue('basePath', '');
+if (basePath) {
+    if (!basePath.startsWith('/') || basePath.endsWith('/')) {
+        console.error(`[st-lite] basePath must look like '/play', got: ${basePath}`);
+        process.exit(1);
+    }
+    console.log(color.magenta(`[st-lite] basePath enabled: ${basePath}`));
+
+    // 302/307 Location：相对 Location 头 nginx 不会改写（proxy_redirect 不生效），服务端补前缀
+    const origRedirect = app.response.redirect;
+    app.response.redirect = function (...args) {
+        const idx = args.length >= 2 ? 1 : 0;
+        const loc = args[idx];
+        if (typeof loc === 'string' && loc.startsWith('/') && !loc.startsWith(`${basePath}/`)) {
+            args[idx] = `${basePath}${loc}`;
+        }
+        return origRedirect.apply(this, args);
+    };
+
+    // 入口 HTML：注入 ST_BASE_PATH（fetch/XHR 包装器读它）+ <base href> 改写为部署前缀
+    const entryHtml = new Set(['index.html', 'login.html']);
+    const htmlCache = new Map();
+    const origSendFile = app.response.sendFile;
+    app.response.sendFile = function (file, options, callback) {
+        if (typeof file === 'string' && entryHtml.has(path.basename(file))) {
+            let html = htmlCache.get(file);
+            if (html === undefined) {
+                html = fs.readFileSync(path.join(serverDirectory, 'public', file), 'utf8');
+                html = html.replace(
+                    '<base href="/">',
+                    `<base href="${basePath}/">\n    <script>window.ST_BASE_PATH = ${JSON.stringify(basePath)};</script>`,
+                );
+                htmlCache.set(file, html);
+            }
+            this.type('html');
+            return this.send(html);
+        }
+        return origSendFile.call(this, file, options, callback);
+    };
+}
+
 // CSRF Protection //
 if (!cliArgs.disableCsrf) {
     const csrfSyncProtection = csrfSync({
