@@ -1,4 +1,4 @@
-# st-lite · ST-PRE 社团体验站特化版
+# st-lite · 社团分享体验站特化版（SillyTavern fork）
 
 > Fork of [SillyTavern/SillyTavern](https://github.com/SillyTavern/SillyTavern) (AGPL-3.0)。
 > 本分支 `st-pre-play` 在上游 v1.19.0 之上为「社团体验站」场景做了特化改造，
