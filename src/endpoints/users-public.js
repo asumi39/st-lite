@@ -1,16 +1,26 @@
 import crypto from 'node:crypto';
 
+import lodash from 'lodash';
 import storage from 'node-persist';
 import express from 'express';
 import { RateLimiterMemory, RateLimiterRes } from 'rate-limiter-flexible';
 import { getIpAddress, retryAfter } from '../express-common.js';
 import { color, Cache, getConfigValue } from '../util.js';
-import { KEY_PREFIX, getUserAvatar, toKey, getPasswordHash, getPasswordSalt, getAccountVersion } from '../users.js';
+import { KEY_PREFIX, getUserAvatar, toKey, getPasswordHash, getPasswordSalt, getAccountVersion, getAllUserHandles, getUserDirectories, ensurePublicDirectoriesExist } from '../users.js';
+import { CONTENT_TYPES, checkForNewContent } from './content-manager.js';
+import { SECRET_KEYS, writeSecret } from './secrets.js';
 
 const DISCREET_LOGIN = getConfigValue('enableDiscreetLogin', false, 'boolean');
 const PREFER_REAL_IP_HEADER = getConfigValue('rateLimiting.preferRealIpHeader', false, 'boolean');
 const LOGIN_POINTS = getConfigValue('rateLimiting.accountsLoginMaxAttempts', 5, 'number');
 const RECOVER_POINTS = getConfigValue('rateLimiting.accountsRecoverMaxAttempts', 5, 'number');
+// ── st-lite fork · 公开注册（体验站自助建号；上游无此功能）────────────────────
+const REGISTRATION_ENABLED = getConfigValue('registration.enabled', false, 'boolean');
+const REGISTRATION_CAP = getConfigValue('registration.cap', 0, 'number'); // 0 = 不限量
+const REGISTRATION_API_KEY_TOKEN = getConfigValue('registration.apiKeyToken', '');
+// 会场现实：整队常共享一个出口 IP —— 限流按「一晚总量」给，而不是按「每分钟几次」
+const REGISTER_POINTS = 30;
+const REGISTER_DURATION = 600;
 const MFA_CACHE = new Cache(5 * 60 * 1000);
 
 const generateRecoveryCode = () => Array.from({ length: 6 }, () => crypto.randomInt(0, 10)).join('');
@@ -23,6 +33,10 @@ const loginLimiter = new RateLimiterMemory({
 const recoverLimiter = new RateLimiterMemory({
     points: RECOVER_POINTS > 0 ? RECOVER_POINTS : Number.MAX_SAFE_INTEGER,
     duration: 300,
+});
+const registerLimiter = new RateLimiterMemory({
+    points: REGISTER_POINTS,
+    duration: REGISTER_DURATION,
 });
 
 router.post('/list', async (_request, response) => {
@@ -206,6 +220,80 @@ router.post('/recover-step2', async (request, response) => {
         }
 
         console.error('Recover step 2 failed:', error);
+        return response.sendStatus(500);
+    }
+});
+
+// ── st-lite fork · 公开注册（体验站自助建号）────────────────────────────────
+// 创建账号 → 铺脚手架内容（角色卡等）→ 预置自定义端点假 key（真 Key 只在 playgate）→ 注册即登录
+router.post('/register', async (request, response) => {
+    try {
+        if (!REGISTRATION_ENABLED) {
+            return response.status(403).json({ error: 'Registration is closed' });
+        }
+
+        if (!request.body || !request.body.handle || !request.body.password) {
+            console.warn('Register failed: Missing required fields');
+            return response.status(400).json({ error: 'Missing required fields' });
+        }
+        if (String(request.body.password).length < 4) {
+            return response.status(400).json({ error: 'Password must be at least 4 characters' });
+        }
+
+        const ip = getIpAddress(request, PREFER_REAL_IP_HEADER);
+        await registerLimiter.consume(ip);
+
+        const handles = await getAllUserHandles();
+        if (REGISTRATION_CAP > 0 && handles.length >= REGISTRATION_CAP) {
+            console.warn('Register failed: cap reached');
+            return response.status(403).json({ error: 'Registration is closed' });
+        }
+
+        // handle 规则与 users-admin 建号一致：小写字母/数字/短横线
+        const handle = lodash.deburr(String(request.body.handle).toLowerCase().trim()).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        if (!handle) {
+            return response.status(400).json({ error: 'Handle must contain letters or digits (a-z, 0-9, -)' });
+        }
+        if (handles.some(x => x === handle)) {
+            return response.status(409).json({ error: 'Handle already taken' });
+        }
+
+        const salt = getPasswordSalt();
+        const newUser = {
+            handle: handle,
+            name: String(request.body.name || handle).slice(0, 32),
+            created: Date.now(),
+            password: getPasswordHash(String(request.body.password), salt),
+            salt: salt,
+            admin: false,
+            enabled: true,
+        };
+        await storage.setItem(toKey(handle), newUser);
+
+        console.info('Creating data directories for', newUser.handle);
+        await ensurePublicDirectoriesExist();
+        const directories = getUserDirectories(newUser.handle);
+        await checkForNewContent([directories], [CONTENT_TYPES.SETTINGS]);
+
+        if (REGISTRATION_API_KEY_TOKEN) {
+            writeSecret(directories, SECRET_KEYS.CUSTOM, REGISTRATION_API_KEY_TOKEN);
+        }
+
+        if (!request.session) {
+            console.error('Session not available');
+            return response.sendStatus(500);
+        }
+        request.session.handle = newUser.handle;
+        request.session.version = getAccountVersion(newUser);
+        console.info('Register successful:', newUser.handle, 'from', ip, `total=${handles.length + 1}`);
+        return response.json({ handle: newUser.handle });
+    } catch (error) {
+        if (error instanceof RateLimiterRes) {
+            console.error('Register failed: Rate limited from', getIpAddress(request, PREFER_REAL_IP_HEADER));
+            return retryAfter(response, error).status(429).send({ error: 'Too many attempts. Try again later.' });
+        }
+
+        console.error('Register failed:', error);
         return response.sendStatus(500);
     }
 });

@@ -139,6 +139,44 @@ async function performLogin(handle, password) {
 }
 
 /**
+ * Attempts to register a new account (st-lite fork · 公开注册).
+ * On success the server already established the session, so we redirect home.
+ * @returns {Promise<void>}
+ */
+async function registerUser() {
+    const handle = String($('#registerHandle').val()).trim();
+    const password = String($('#registerPassword').val());
+    if (!handle || password.length < 4) {
+        return displayError('Handle and a password (min 4 characters) are required');
+    }
+    displayError('');
+    try {
+        const response = await fetch('/api/users/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken,
+            },
+            body: JSON.stringify({ handle: handle, password: password }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            return displayError(errorData.error || 'An error occurred');
+        }
+
+        const data = await response.json();
+        if (data.handle) {
+            console.log(`Successfully registered as ${handle}!`);
+            redirectToHome();
+        }
+    } catch (error) {
+        console.error('Error registering:', error);
+        displayError(String(error));
+    }
+}
+
+/**
  * Handles the user selection event.
  * @param {object} user User object
  * @returns {Promise<void>}
@@ -189,8 +227,8 @@ function redirectToHome() {
     // noauto parameter (if present)
     currentUrl.searchParams.delete('noauto');
 
-    // Set the pathname to root and keep the updated query string
-    currentUrl.pathname = '/';
+    // Set the pathname to root (respecting a sub-path deployment, if any) and keep the updated query string
+    currentUrl.pathname = (window.ST_BASE_PATH || '') + '/';
 
     // Redirect to the new URL
     window.location.href = currentUrl.toString();
@@ -247,6 +285,8 @@ function configureDiscreetLogin() {
     $('#userList').hide();
     $('#passwordRecoveryBlock').hide();
     $('#passwordEntryBlock').show();
+    $('#registerBlock').show();
+    $('#registerButton').off('click').on('click', () => registerUser());
     $('#loginButton').off('click').on('click', async () => {
         const handle = String($('#userHandle').val());
         const password = String($('#userPassword').val());
@@ -283,6 +323,8 @@ function configureDiscreetLogin() {
         if (evt.key === 'Enter' && document.activeElement.tagName === 'INPUT') {
             if ($('#passwordRecoveryBlock').is(':visible')) {
                 $('#sendRecovery').trigger('click');
+            } else if ($('#registerHandle').is(':visible') && (document.activeElement.id === 'registerHandle' || document.activeElement.id === 'registerPassword')) {
+                $('#registerButton').trigger('click');
             } else {
                 $('#loginButton').trigger('click');
             }

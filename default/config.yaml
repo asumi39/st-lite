@@ -312,6 +312,12 @@ extensions:
     speechToText: Xenova/whisper-small
     textToSpeech: Xenova/speecht5_tts
 
+# ── st-lite fork · 公开注册（体验站自助建号；上游无此功能）─────────────────
+registration:
+  enabled: false        # 体验站当晚设 true；关站改回 false
+  cap: 80               # 账号总数上限（含 default-user），超出即拒绝新注册
+  apiKeyToken: ''       # 写入每个新账号的自定义端点假 key（须与 playgate-token 一致；泄露无害）
+
 # Git backend for plugin/extension repository operations.
 # - Use "auto" to prefer system git, falling back to the integrated backend
 # - Use "system" to force system backend
