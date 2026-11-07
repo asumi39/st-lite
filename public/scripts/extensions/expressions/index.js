@@ -19,7 +19,7 @@ import { Popup, POPUP_RESULT } from '../../popup.js';
 import { t } from '../../i18n.js';
 import { removeReasoningFromString } from '../../reasoning.js';
 import { macros } from '../../macros/macro-system.js';
-import { MacrosParser } from '/scripts/macros.js';
+import { MacrosParser } from '../../macros.js';
 export { MODULE_NAME };
 
 /**

@@ -30,7 +30,7 @@ import { macros, MacroCategory } from '../../macros/macro-system.js';
 import { countWebLlmTokens, generateWebLlmChatPrompt, getWebLlmContextSize, isWebLlmSupported } from '../shared.js';
 import { commonEnumProviders } from '../../slash-commands/SlashCommandCommonEnumsProvider.js';
 import { removeReasoningFromString } from '../../reasoning.js';
-import { MacrosParser } from '/scripts/macros.js';
+import { MacrosParser } from '../../macros.js';
 export { MODULE_NAME };
 
 const MODULE_NAME = '1_memory';

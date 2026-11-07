@@ -12,7 +12,7 @@
     <style>
         /* Put critical CSS here. The rest should go in stylesheets. */
         body {
-            background-color: rgb(36, 36, 37);
+            background-color: #16100a;
         }
     </style>
     <link rel="preload" as="style" href="style.css">
@@ -31,7 +31,7 @@
     <link href="css/fontawesome.min.css" rel="stylesheet">
     <link href="css/solid.min.css" rel="stylesheet">
     <link href="css/user.css" rel="stylesheet">
-    <title>SillyTavern</title>
+    <title>深夜酒馆 · 社团体验站</title>
 </head>
 
 <body class="login">
@@ -42,33 +42,33 @@
                     <div id="userSelectBlock" class="flex-container flexFlowColumn alignItemsCenter">
                         <h2 id="logoBlock" class="flex-container">
                             <img src="img/logo.png" alt="SillyTavern" class="logo">
-                            <span>Welcome to SillyTavern</span>
+                            <span>深夜酒馆</span>
                         </h2>
                         <h3 id="normalLoginPrompt">
-                            Select an Account
+                            选一个账号入座
                         </h3>
                         <h3 id="discreetLoginPrompt">
-                            Enter Login Details
+                            输入桌号入座
                         </h3>
                         <div id="userListBlock" class="wide100p">
                             <div id="userList" class="flex-container justifySpaceEvenly"></div>
                             <div id="handleEntryBlock" style="display:none;" class="flex-container flexFlowColumn alignItemsCenter">
-                                <input id="userHandle" class="text_pole" type="text" placeholder="User handle" autocomplete="username">
+                                <input id="userHandle" class="text_pole" type="text" placeholder="桌号" autocomplete="username">
                             </div>
                             <div id="passwordEntryBlock" style="display:none;"
                                 class="flex-container flexFlowColumn alignItemsCenter">
-                                <input id="userPassword" class="text_pole" type="password" placeholder="Password" autocomplete="current-password">
-                                <a id="recoverPassword" href="#" onclick="return false;">Forgot password?</a>
+                                <input id="userPassword" class="text_pole" type="password" placeholder="密码" autocomplete="current-password">
+                                <a id="recoverPassword" href="#" onclick="return false;">忘记密码？</a>
                                 <div class="flex-container">
-                                    <div id="loginButton" class="menu_button">Login</div>
+                                    <div id="loginButton" class="menu_button">入座</div>
                                 </div>
                             </div>
                             <div id="registerBlock" style="display:none;" class="flex-container flexFlowColumn alignItemsCenter">
-                                <div id="registerDivider" class="wide100p" style="opacity:0.5; text-align:center; margin:4px 0;">— or —</div>
-                                <input id="registerHandle" class="text_pole" type="text" placeholder="Handle (a-z, 0-9, -)" autocomplete="username">
-                                <input id="registerPassword" class="text_pole" type="password" placeholder="Password (min 4)" autocomplete="new-password">
+                                <div id="registerDivider" class="wide100p">—— 没有桌号？现场开一张 ——</div>
+                                <input id="registerHandle" class="text_pole" type="text" placeholder="新桌号（小写字母、数字、短横线）" autocomplete="username">
+                                <input id="registerPassword" class="text_pole" type="password" placeholder="密码（至少 4 位）" autocomplete="new-password">
                                 <div class="flex-container">
-                                    <div id="registerButton" class="menu_button">Create Account</div>
+                                    <div id="registerButton" class="menu_button">开新桌</div>
                                 </div>
                             </div>
                             <div id="passwordRecoveryBlock" style="display:none;" class="flex-container flexFlowColumn alignItemsCenter">

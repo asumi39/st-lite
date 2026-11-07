@@ -87,6 +87,7 @@
     "power_user": {
         "tokenizer": 99,
         "token_padding": 64,
+        "auto_connect": true,
         "collapse_newlines": false,
         "pin_examples": false,
         "strip_examples": false,

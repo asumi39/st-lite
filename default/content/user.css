@@ -1,1 +1,163 @@
-/* Put custom styles here. */
+/* ============================================================
+   st-lite 体验站皮肤 · 烛光酒馆（与 ST-PRE tokens 同源同值）
+   服务端全局注入（data/_css/user.css），登录页同样生效。
+   三件事：
+     ① 烛光色板覆盖（深色木质 + 暖琥珀，!important 压过 JS 注入的主题变量）
+     ② 面板减法：新手用不到的面板一律不出现（DOM 保留，CSS 隐藏——上游脚本
+        对缺失 DOM 有脆弱点，隐藏是低风险路线；功能层面另有 config 关闭）
+     ③ 登录页品牌化（login.html 的中文文案 + 本文件的烛光样式）
+   ============================================================ */
+
+/* ---------- ① 色板 ---------- */
+:root {
+    --SmartThemeBlurTintColor: rgba(22, 16, 10, 0.88) !important;
+    --SmartThemeBodyColor: #f5ead6 !important;
+    --SmartThemeEmColor: #e8a34c !important;
+    --SmartThemeQuoteColor: rgba(232, 163, 76, 0.85) !important;
+    --SmartThemeBorderColor: rgba(232, 163, 76, 0.22) !important;
+    --SmartThemeShadowColor: rgba(0, 0, 0, 0.55) !important;
+    --SmartThemeChatTintColor: rgba(30, 22, 16, 0.72) !important;
+    --SmartThemeBotMesBlurTintColor: rgba(38, 27, 17, 0.88) !important;
+    --SmartThemeUserMesBlurTintColor: rgba(56, 38, 23, 0.88) !important;
+    --SmartThemeUnderlineColor: rgba(232, 163, 76, 0.4) !important;
+    --SmartThemeFastUIBGColor: rgba(30, 22, 16, 0.94) !important;
+}
+
+body {
+    /* 烛光幕布：暖黑底 + 一点琥珀天光（纯 CSS，零图片） */
+    background:
+        radial-gradient(1100px 700px at 72% -8%, rgba(232, 163, 76, 0.09), transparent 62%),
+        #16100a !important;
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif !important;
+}
+
+/* 皮肤自带幕布：ST 的背景图层让位（背景抽屉已隐藏，无入口） */
+#bg1, #bg2 {
+    display: none !important;
+}
+
+/* 烛光金给关键交互着色（连接状态、发送按钮 hover、选中卡描边） */
+#send_but, .mes_buttons .fa-solid, .drawer-toggle .fa-solid {
+    color: inherit;
+}
+#send_but:hover {
+    color: #e8a34c;
+}
+.character_select.selected_card, .character_select:hover {
+    outline: 1px solid rgba(232, 163, 76, 0.45);
+}
+
+/* ---------- ② 面板减法 ---------- */
+/* 顶栏抽屉开关：API 连接（已预置）/ 采样器（已锁）/ 世界书编辑器 / 背景 / 高级格式化 / 扩展 */
+#sys-settings-button,
+#ai-config-button,
+#WI-SP-button,
+#backgrounds-button,
+#advanced-formatting-button,
+#extensions-settings-button {
+    display: none !important;
+}
+
+/* 对应的抽屉内容面板（AI 采样面板 / 世界书 / 背景 / 高级格式化 / 扩展 / 预设管理弹窗） */
+#left-nav-panel,
+#WorldInfo,
+#Backgrounds,
+#AdvancedFormatting,
+#rm_extensions_block,
+#completion_prompt_manager_popup {
+    display: none !important;
+}
+
+/* options 菜单：作者注释 / CFG / logprobs / 转群聊 / 书签分支 */
+#option_toggle_AN,
+#option_toggle_CFG,
+#option_toggle_logprobs,
+#option_convert_to_group,
+#option_new_bookmark {
+    display: none !important;
+}
+
+/* 群聊入口（体验站只做一对一角色扮演） */
+#rm_button_group_chats {
+    display: none !important;
+}
+
+/* 浮动面板：作者注释 / CFG / logprobs */
+#floatingPrompt,
+#cfgConfig,
+#logprobsViewer {
+    display: none !important;
+}
+
+/* ---------- ③ 登录页品牌化 ---------- */
+body.login {
+    background:
+        radial-gradient(900px 600px at 50% -12%, rgba(232, 163, 76, 0.14), transparent 60%),
+        #16100a !important;
+    min-height: 100vh;
+}
+
+#shadow_popup #dialogue_popup {
+    background: rgba(30, 22, 16, 0.72) !important;
+    border: 1px solid rgba(232, 163, 76, 0.22);
+    border-radius: 20px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+#shadow_popup #logoBlock {
+    flex-direction: column !important;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+#shadow_popup #logoBlock img.logo {
+    display: none; /* 上游 logo 图让位：烛焰语义用排版表达（页面不放无关联图片） */
+}
+#shadow_popup #logoBlock::before {
+    content: "🕯";
+    font-size: 42px;
+    line-height: 1;
+    text-shadow: 0 0 24px rgba(232, 163, 76, 0.55);
+}
+#shadow_popup #logoBlock span {
+    font-family: "Songti SC", "Noto Serif SC", serif !important;
+    font-size: 40px !important;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #fff7e8 !important;
+}
+#shadow_popup h3 {
+    font-family: "Songti SC", "Noto Serif SC", serif !important;
+    color: #e8a34c !important;
+    font-size: 17px !important;
+    letter-spacing: 0.08em;
+}
+
+#shadow_popup .text_pole {
+    background: rgba(22, 16, 10, 0.75) !important;
+    border: 1px solid rgba(232, 163, 76, 0.22) !important;
+    color: #f5ead6 !important;
+    border-radius: 12px;
+    max-width: 320px;
+}
+#shadow_popup .menu_button {
+    background: #e8a34c !important;
+    color: #241708 !important;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    min-width: 160px;
+    justify-content: center;
+    padding: 9px 20px;
+}
+#shadow_popup .menu_button:hover {
+    filter: brightness(1.08);
+}
+#shadow_popup #errorMessage {
+    color: #c05f33 !important;
+}
+#shadow_popup #registerDivider {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    margin: 10px 0 6px !important;
+}

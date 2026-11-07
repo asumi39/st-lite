@@ -197,7 +197,7 @@ if (basePath) {
                 html = fs.readFileSync(path.join(serverDirectory, 'public', file), 'utf8');
                 html = html.replace(
                     '<base href="/">',
-                    `<base href="${basePath}/">\n    <script>window.ST_BASE_PATH = ${JSON.stringify(basePath)};</script>`,
+                    `<base href="${basePath}/">\n    <script>window.ST_BASE_PATH = ${JSON.stringify(basePath)};</script>\n    <script src="scripts/base-path.js"></script>`,
                 );
                 htmlCache.set(file, html);
             }

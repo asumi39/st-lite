@@ -431,7 +431,7 @@ async function callExtensionHook(name, hookName) {
         return;
     }
 
-    const url = `/scripts/extensions/${name}/${manifest.js}`;
+    const url = `./extensions/${name}/${manifest.js}`;
     console.debug(`callExtensionHook: Calling hook "${hookName}" (function "${hookFunctionName}") for extension "${name}"`);
 
     try {
@@ -784,7 +784,7 @@ function addExtensionStyle(name, manifest) {
     }
 
     return new Promise((resolve, reject) => {
-        const url = `/scripts/extensions/${name}/${manifest.css}`;
+        const url = (window.ST_BASE_PATH ?? '') + `/scripts/extensions/${name}/${manifest.css}`;
         const id = sanitizeSelector(`${name}-css`);
 
         if ($(`link[id="${id}"]`).length === 0) {
@@ -816,7 +816,7 @@ function addExtensionScript(name, manifest) {
     }
 
     return new Promise((resolve, reject) => {
-        const url = `/scripts/extensions/${name}/${manifest.js}`;
+        const url = (window.ST_BASE_PATH ?? '') + `/scripts/extensions/${name}/${manifest.js}`;
         const id = sanitizeSelector(`${name}-js`);
         let ready = false;
 

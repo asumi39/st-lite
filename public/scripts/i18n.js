@@ -3,7 +3,8 @@ import { updateSecretDisplay } from './secrets.js';
 
 const storageKey = 'language';
 const overrideLanguage = localStorage.getItem(storageKey);
-const localeFile = String(overrideLanguage || navigator.language || navigator.userLanguage || 'en').toLowerCase();
+// st-lite fork: 体验站受众全中文 —— 兜底语言从 'en' 改为 'zh-cn'（UI 语言切换器仍可覆盖）
+const localeFile = String(overrideLanguage || navigator.language || navigator.userLanguage || 'zh-cn').toLowerCase();
 var langs;
 // Don't change to let/const! It will break module loading.
 // eslint-disable-next-line prefer-const
